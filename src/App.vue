@@ -1,18 +1,17 @@
 <script setup>
-import { ref } from 'vue'
-const count = ref(1)
-const add = () => {
-  count.value++
-}
-const sub = () => {
-  count.value--
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goHome = () => {
+  router.push('/home')
 }
 </script>
 
 <template>
   <div>
-    {{ count }}
-    <button @click="add">+</button>
-    <button @click="sub">-</button>
+    我是APP
+    <TestDemo></TestDemo>
+    <el-button @click="goHome">首页</el-button>
+    <el-button @click="$router.push('/list')">列表</el-button>
   </div>
 </template>
