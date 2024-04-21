@@ -15,6 +15,13 @@ const { token } = storeToRefs(userStore)
 
 <template>
   <div>
+    <hr />
+    <hr />
+    <hr />
+    <router-view></router-view>
+    <hr />
+    <hr />
+    <hr />
     <h1>我是APP</h1>
     <el-button @click="goHome">首页</el-button>
     <el-button @click="$router.push('/list')">列表</el-button>
