@@ -1,5 +1,5 @@
 <script setup>
-import { userRegisterServise, userLoginServise } from '@/api/user.js'
+import { userRegisterService, userLoginService } from '@/api/user.js'
 import { useUserStore } from '@/stores'
 import { useRouter } from 'vue-router'
 import { User, Lock } from '@element-plus/icons-vue'
@@ -60,16 +60,18 @@ const rules = {
     }
   ]
 }
+// 注册
 const register = async () => {
   // 预校验
   await form.value.validate()
-  await userRegisterServise(formModel.value)
+  await userRegisterService(formModel.value)
   ElMessage.success('注册成功')
   isRegister.value = false
 }
+// 登录
 const login = async () => {
   await form.value.validate()
-  const res = await userLoginServise(formModel.value)
+  const res = await userLoginService(formModel.value)
   setToken(res.data.token)
   router.push('/')
 }
