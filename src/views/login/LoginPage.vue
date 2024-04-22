@@ -71,8 +71,7 @@ const login = async () => {
   await form.value.validate()
   const res = await userLoginServise(formModel.value)
   setToken(res.data.token)
-  ElMessage.success('登录成功')
-  router.push('/layout')
+  router.push('/')
 }
 // 切换的时候重置表单内容
 watch(isRegister, () => {
@@ -224,8 +223,8 @@ watch(isRegister, () => {
   background-color: #fff;
   .bg {
     background:
-      url('@/assets/logo2.png') no-repeat 60% center / 240px auto,
-      url('@/assets/login_bg.jpg') no-repeat center / cover;
+      url('@/assets/ncut_title.png') no-repeat 50% top / 500px auto,
+      url('@/assets/ncut_bg.jpg') no-repeat center / cover;
     border-radius: 0 20px 20px 0;
   }
   .form {

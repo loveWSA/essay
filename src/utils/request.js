@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { useUserStore } from '@/stores'
-import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 const baseURL = 'http://big-event-vue-api-t.itheima.net'
@@ -15,10 +14,9 @@ instance.interceptors.request.use(
   (config) => {
     // 判断是否有token
     const useStore = useUserStore()
-    const { token } = storeToRefs(useStore)
     // 如果有 在请求头添加 token
-    if (token) {
-      config.headers.Authorization = token
+    if (useStore.token) {
+      config.headers.Authorization = useStore.token
     }
     return config
   },
@@ -40,7 +38,7 @@ instance.interceptors.response.use(
     // 错误特殊情况 401 (权限不足或token过期)
     // 跳转到登录页面
     if (err.response?.status === 401) {
-      router.push('/login')
+      router.push('/')
     }
     // 错误默认情况处理 直接给提示
     ElMessage.error(err.response.data.message || '服务异常')
