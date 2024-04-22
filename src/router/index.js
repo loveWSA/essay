@@ -5,12 +5,12 @@ const router = createRouter({
   routes: [
     {
       // 登录页
-      path: '/login',
+      path: '/',
       component: () => import('@/views/login/LoginPage.vue')
     },
     {
       // 首页
-      path: '/',
+      path: '/layout',
       redirect: '/essay/list',
       component: () => import('@/views/layout/LayoutPage.vue'),
       children: [
