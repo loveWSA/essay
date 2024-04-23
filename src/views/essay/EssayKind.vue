@@ -1,9 +1,11 @@
 <script setup>
 import PageContainer from '@/components/PageContainer.vue'
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { essayGetKindService } from '@/api/essay'
+import { essayDelKindService, essayGetKindService } from '@/api/essay'
 import { ref } from 'vue'
+import ChannelEdit from '@/views/essay/components/ChannelEdit.vue'
 const loading = ref(false)
+const dialog = ref()
 const essayKind = ref([])
 const getEssayKind = async () => {
   loading.value = true
@@ -13,18 +15,31 @@ const getEssayKind = async () => {
 }
 getEssayKind()
 
-const essayEdit = (row, $index) => {
-  console.log(row, $index)
+const essayEdit = (row) => {
+  dialog.value.open(row)
 }
-const essayDelete = (row, $index) => {
-  console.log(row, $index)
+const essayDelete = async (row) => {
+  await ElMessageBox.confirm('确认要删除该分类吗', '温馨提示', {
+    type: 'warning',
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
+  await essayDelKindService(row.id)
+  ElMessage.success('删除成功')
+  getEssayKind()
+}
+const onAddChannel = () => {
+  dialog.value.open({})
+}
+const onSuccess = async () => {
+  getEssayKind()
 }
 </script>
 
 <template>
   <PageContainer title="论文分类">
     <template #extra>
-      <el-button type="primary">添加分类</el-button>
+      <el-button @click="onAddChannel" type="primary">添加分类</el-button>
     </template>
     <!-- 表格 -->
     <el-table v-loading="loading" :data="essayKind" style="width: 100%">
@@ -55,5 +70,6 @@ const essayDelete = (row, $index) => {
         <el-empty description="没有数据" />
       </template>
     </el-table>
+    <ChannelEdit ref="dialog" @success="onSuccess"></ChannelEdit>
   </PageContainer>
 </template>
