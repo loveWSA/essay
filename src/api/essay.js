@@ -10,3 +10,9 @@ export const essayDelKindService = (id) =>
   request.delete('/my/cate/del', {
     params: { id }
   })
+
+// 获取论文列表
+export const essayGetListService = (params) =>
+  request.get('/my/article/list', {
+    params
+  })
