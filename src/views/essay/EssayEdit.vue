@@ -2,6 +2,11 @@
 import { ref } from 'vue'
 import ChannelSelect from './components/ChannelSelect.vue'
 import { useRouter } from 'vue-router'
+import 'bytemd/dist/index.css' // 导入编辑器样式
+import { Editor } from '@bytemd/vue-next' // 导入编辑器组件
+import zhHans from 'bytemd/lib/locales/zh_Hans.json' // 汉化
+import 'juejin-markdown-themes/dist/juejin.min.css'
+import { useEssayStore } from '@/stores'
 const router = useRouter()
 // 收集数据
 const formModel = ref({
@@ -9,7 +14,7 @@ const formModel = ref({
   title: '',
   date: '',
   kind: '',
-  state: '',
+  state: '已发布',
   college: '理学院',
   major: '信息与计算科学',
   class_name: '信20-1',
@@ -73,8 +78,20 @@ const toListEdit = async () => {
       if (action === 'cancel') router.push('/essay/list')
     })
 }
+// 返回封面页
 const changeCover = () => {
   isCover.value = true
+}
+// 编辑器文本获取
+const handleChange = (v) => {
+  formModel.value.content = v
+}
+// 保存
+const essayStore = useEssayStore()
+essayStore.getEssay()
+const save = () => {
+  essayStore.setEssay(formModel.value)
+  router.push('/essay/list')
 }
 </script>
 
@@ -145,30 +162,40 @@ const changeCover = () => {
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="8" :offset="2" class="cover">
+      <el-col :span="10" :offset="1" class="cover">
         <div><img src="@/assets/head.png" alt="" /></div>
-        <div class="">
-          <div>论文题目:{{ formModel.title }}</div>
-
-          <div>学院:{{ formModel.college }}</div>
-          <div>专业:{{ formModel.major }}</div>
-          <div>班级:{{ formModel.class_name }}</div>
-          <div>姓名:{{ formModel.name }}</div>
-          <div>学号:{{ formModel.number }}</div>
-          <div>指导教师:{{ formModel.teacher }}</div>
-          <div>日期:{{ formModel.date }}</div>
-          <div>{{ formModel.id }}</div>
+        <div class="front">
+          <div class="essayTitle">论文题目:{{ formModel.title }}</div>
+          <div class="item">学<span>院:</span>{{ formModel.college }}</div>
+          <div class="item">专<span>业:</span>{{ formModel.major }}</div>
+          <div class="item">班<span>级:</span>{{ formModel.class_name }}</div>
+          <div class="item">姓<span>名:</span>{{ formModel.name }}</div>
+          <div class="item">学<span>号:</span>{{ formModel.number }}</div>
+          <div class="item">指导教师:{{ formModel.teacher }}</div>
+          <div class="date">{{ formModel.date }}</div>
         </div>
       </el-col>
     </el-row>
   </el-card>
   <!-- 内容 -->
   <PageContainer v-else :title="formModel.title">
+    <!-- 标题 -->
     <template #extra>
       <ChannelSelect v-model="formModel.kind"></ChannelSelect>
-      <el-button type="primary">保存</el-button>
+      <el-button @click="save" type="primary" style="margin-left: 10px"
+        >保存</el-button
+      >
       <el-button @click="changeCover" type="primary">返回</el-button>
     </template>
+    <!-- markdown编辑器 -->
+    <div class="details">
+      <Editor
+        class="editos"
+        :value="formModel.content"
+        :locale="zhHans"
+        @change="handleChange"
+      />
+    </div>
   </PageContainer>
 </template>
 <style lang="scss" scoped>
@@ -184,5 +211,33 @@ const changeCover = () => {
 }
 img {
   width: 100%;
+}
+.front {
+  font-family: '黑体';
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 92px;
+}
+.item {
+  margin-top: 10px;
+}
+.essayTitle {
+  margin-bottom: 40px;
+}
+span {
+  margin-left: 36px;
+}
+.date {
+  margin-top: 40px;
+  text-align: center;
+}
+.details {
+  width: 100%;
+  height: 100%;
+  :deep() {
+    .bytemd {
+      height: calc(100vh - 200px);
+    }
+  }
 }
 </style>

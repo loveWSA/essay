@@ -13,7 +13,6 @@ const essayList = ref([])
 const getEssayKind = async () => {
   const res = await essayGetKindService()
   essayList.value = res.data.data
-  console.log(essayList.value)
 }
 getEssayKind()
 </script>
