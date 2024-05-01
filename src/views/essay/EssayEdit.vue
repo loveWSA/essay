@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import ChannelSelect from './components/ChannelSelect.vue'
 import { useRouter } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
 const router = useRouter()
 // 收集数据
 const formModel = ref({
@@ -27,13 +26,34 @@ const rules = {
   major: [{ required: true, message: '请输入专业', trigger: 'blur' }],
   class_name: [{ required: true, message: '请输入班级', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  number: [{ required: true, message: '请输入学号', trigger: 'blur' }],
+  number: [
+    { required: true, message: '请输入学号', trigger: 'blur' },
+    {
+      pattern: /^[0-9]{11}$/,
+      message: '学号必须是11位的数字',
+      trigger: 'blur'
+    }
+  ],
   teacher: [{ required: true, message: '请输入指导教师名字', trigger: 'blur' }]
 }
+// 随机生成四位id
+const createId = () => {
+  let arr = []
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  for (let i = 0; i < 4; i++) {
+    arr.push(characters.charAt(Math.floor(Math.random() * characters.length)))
+  }
+  formModel.value.id = arr.join('')
+}
+createId()
 // 判断是否为封面页
 const isCover = ref(true)
 // 切内容页
-const changeContent = () => {
+const form = ref()
+const changeContent = async () => {
+  // 预校验
+  await form.value.validate()
   isCover.value = false
 }
 // 存草稿
@@ -45,8 +65,8 @@ const toListEdit = async () => {
     type: 'warning'
   })
     .then(() => {
-      formModel.value.id = 1
       formModel.value.state = '草稿'
+      // 保存数据
       router.push('/essay/list')
     })
     .catch((action) => {
@@ -56,8 +76,6 @@ const toListEdit = async () => {
 const changeCover = () => {
   isCover.value = true
 }
-const uuid = ref()
-uuid.value = uuidv4()
 </script>
 
 <template>
@@ -65,7 +83,7 @@ uuid.value = uuidv4()
     <el-row class="login-page">
       <el-col :span="12" class="form">
         <!-- 封面 -->
-        <el-form class="form" :model="formModel" :rules="rules">
+        <el-form ref="form" class="form" :model="formModel" :rules="rules">
           <!-- 标题 -->
           <el-form-item prop="title" label="论文标题" label-width="80px">
             <el-input v-model="formModel.title" style="width: 240px"></el-input>
@@ -129,15 +147,18 @@ uuid.value = uuidv4()
       </el-col>
       <el-col :span="8" :offset="2" class="cover">
         <div><img src="@/assets/head.png" alt="" /></div>
-        <div>题目:{{ formModel.title }}</div>
-        <div>学院:{{ formModel.college }}</div>
-        <div>专业:{{ formModel.major }}</div>
-        <div>班级:{{ formModel.class_name }}</div>
-        <div>姓名:{{ formModel.name }}</div>
-        <div>学号:{{ formModel.number }}</div>
-        <div>指导教师:{{ formModel.teacher }}</div>
-        <div>日期:{{ formModel.date }}</div>
-        <div>{{ uuid }}</div>
+        <div class="">
+          <div>论文题目:{{ formModel.title }}</div>
+
+          <div>学院:{{ formModel.college }}</div>
+          <div>专业:{{ formModel.major }}</div>
+          <div>班级:{{ formModel.class_name }}</div>
+          <div>姓名:{{ formModel.name }}</div>
+          <div>学号:{{ formModel.number }}</div>
+          <div>指导教师:{{ formModel.teacher }}</div>
+          <div>日期:{{ formModel.date }}</div>
+          <div>{{ formModel.id }}</div>
+        </div>
       </el-col>
     </el-row>
   </el-card>
