@@ -5,6 +5,8 @@ import { ref } from 'vue'
 import { Edit, Delete } from '@element-plus/icons-vue'
 import { essayGetListService } from '@/api/essay'
 import { formatTime } from '@/utils/format'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 // 定义请求参数对象
 const params = ref({
   pagenum: 1,
@@ -15,10 +17,14 @@ const params = ref({
 
 const essayList = ref([])
 const total = ref(0)
+const loading = ref(false)
+// 获取文章列表数据
 const getEssayList = async () => {
+  loading.value = true
   const res = await essayGetListService(params.value)
   essayList.value = res.data.data
   total.value = res.data.total
+  loading.value = false
 }
 getEssayList()
 
@@ -30,12 +36,26 @@ const onEditEssay = (row) => {
 const onDeleteEssay = (row) => {
   console.log(row)
 }
+// 重置
+const onReset = () => {
+  params.value.state = ''
+  params.value.cate_id = ''
+  getEssayList()
+}
+// 搜索
+const onSearch = () => {
+  getEssayList()
+}
+// 论文编辑
+const onEdit = () => {
+  router.push('/essay/edit')
+}
 </script>
 
 <template>
   <PageContainer title="论文管理">
     <template #extra>
-      <el-button type="primary">添加论文</el-button>
+      <el-button @click="onEdit" type="primary">添加论文</el-button>
     </template>
     <!-- 表单区域 -->
     <el-form inline>
@@ -50,12 +70,12 @@ const onDeleteEssay = (row) => {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="onSearch" type="primary">搜索</el-button>
+        <el-button @click="onReset">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 表格区域 -->
-    <el-table :data="essayList">
+    <el-table :data="essayList" v-loading="loading">
       <el-table-column label="文章标题" prop="title">
         <!-- 利用作用域插槽 可以获取当前行数据row -->
         <template #default="{ row }">

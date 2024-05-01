@@ -24,6 +24,10 @@ const router = createRouter({
           component: () => import('@/views/essay/EssayKind.vue')
         },
         {
+          path: '/essay/edit',
+          component: () => import('@/views/essay/EssayEdit.vue')
+        },
+        {
           path: '/user/detail',
           component: () => import('@/views/user/UserDetail.vue')
         },

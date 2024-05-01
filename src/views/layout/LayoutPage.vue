@@ -121,7 +121,7 @@ const handleCommand = async (key) => {
     background-color: #232323;
     &__logo {
       height: 120px;
-      background: url('@/assets/ncut_title.png') no-repeat center / 200px auto;
+      background: url('@/assets/ncut_title.png') no-repeat center / 180px auto;
     }
     .el-menu {
       border-right: none;
