@@ -62,7 +62,7 @@ if (route.query.id) {
 }
 
 // 判断是否为封面页
-const isCover = ref(true)
+const isCover = ref(false)
 // 切内容页
 const form = ref()
 const changeContent = async () => {
