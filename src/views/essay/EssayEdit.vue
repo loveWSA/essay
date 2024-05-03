@@ -1,13 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 import ChannelSelect from './components/ChannelSelect.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import 'bytemd/dist/index.css' // 导入编辑器样式
 import { Editor } from '@bytemd/vue-next' // 导入编辑器组件
 import zhHans from 'bytemd/lib/locales/zh_Hans.json' // 汉化
 import 'juejin-markdown-themes/dist/juejin.min.css'
 import { useEssayStore } from '@/stores'
 const router = useRouter()
+const route = useRoute()
+const essayStore = useEssayStore()
 // 收集数据
 const formModel = ref({
   id: '',
@@ -29,6 +31,7 @@ const rules = {
   date: [{ required: true, message: '请输入日期', trigger: 'change' }],
   college: [{ required: true, message: '请输入学院', trigger: 'blur' }],
   major: [{ required: true, message: '请输入专业', trigger: 'blur' }],
+  kind: [{ required: true, message: '请输入论文分类', trigger: 'blur' }],
   class_name: [{ required: true, message: '请输入班级', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   number: [
@@ -41,17 +44,23 @@ const rules = {
   ],
   teacher: [{ required: true, message: '请输入指导教师名字', trigger: 'blur' }]
 }
-// 随机生成四位id
-const createId = () => {
-  let arr = []
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  for (let i = 0; i < 4; i++) {
-    arr.push(characters.charAt(Math.floor(Math.random() * characters.length)))
+if (route.query.id) {
+  const id = route.query.id
+  formModel.value = essayStore.essay.filter((item) => item.id == id)[0]
+} else {
+  // 随机生成四位id
+  const createId = () => {
+    let arr = []
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    for (let i = 0; i < 4; i++) {
+      arr.push(characters.charAt(Math.floor(Math.random() * characters.length)))
+    }
+    formModel.value.id = arr.join('')
   }
-  formModel.value.id = arr.join('')
+  createId()
 }
-createId()
+
 // 判断是否为封面页
 const isCover = ref(true)
 // 切内容页
@@ -63,20 +72,36 @@ const changeContent = async () => {
 }
 // 存草稿
 const toListEdit = async () => {
-  await ElMessageBox.confirm('要保存为草稿么', '温馨提示', {
-    distinguishCancelAndClose: true,
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(() => {
-      formModel.value.state = '草稿'
-      // 保存数据
-      router.push('/essay/list')
+  if (route.query.id) {
+    await ElMessageBox.confirm('要保存修改内容么', '温馨提示', {
+      distinguishCancelAndClose: true,
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+      type: 'warning'
     })
-    .catch((action) => {
-      if (action === 'cancel') router.push('/essay/list')
+      .then(() => {
+        essayStore.editEssay(formModel.value)
+        router.push('/essay/list')
+      })
+      .catch((action) => {
+        if (action === 'cancel') router.push('/essay/list')
+      })
+  } else {
+    await ElMessageBox.confirm('要保存为草稿么', '温馨提示', {
+      distinguishCancelAndClose: true,
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+      type: 'warning'
     })
+      .then(() => {
+        formModel.value.state = '草稿'
+        essayStore.setEssay(formModel.value)
+        router.push('/essay/list')
+      })
+      .catch((action) => {
+        if (action === 'cancel') router.push('/essay/list')
+      })
+  }
 }
 // 返回封面页
 const changeCover = () => {
@@ -87,10 +112,12 @@ const handleChange = (v) => {
   formModel.value.content = v
 }
 // 保存
-const essayStore = useEssayStore()
-essayStore.getEssay()
 const save = () => {
-  essayStore.setEssay(formModel.value)
+  if (route.query.id) {
+    essayStore.editEssay(formModel.value)
+  } else {
+    essayStore.setEssay(formModel.value)
+  }
   router.push('/essay/list')
 }
 </script>
@@ -116,6 +143,9 @@ const save = () => {
                 value-format="YYYY年MM月DD日"
               />
             </div>
+          </el-form-item>
+          <el-form-item prop="kind" label="分类" label-width="80px">
+            <ChannelSelect v-model="formModel.kind"></ChannelSelect>
           </el-form-item>
           <!-- 学院 -->
           <el-form-item prop="college" label="学院" label-width="80px">
@@ -172,7 +202,8 @@ const save = () => {
           <div class="item">姓<span>名:</span>{{ formModel.name }}</div>
           <div class="item">学<span>号:</span>{{ formModel.number }}</div>
           <div class="item">指导教师:{{ formModel.teacher }}</div>
-          <div class="date">{{ formModel.date }}</div>
+          <div class="date" v-if="formModel.date">{{ formModel.date }}</div>
+          <div class="date" v-else>20 年 月 日</div>
         </div>
       </el-col>
     </el-row>
@@ -181,7 +212,6 @@ const save = () => {
   <PageContainer v-else :title="formModel.title">
     <!-- 标题 -->
     <template #extra>
-      <ChannelSelect v-model="formModel.kind"></ChannelSelect>
       <el-button @click="save" type="primary" style="margin-left: 10px"
         >保存</el-button
       >

@@ -1,14 +1,15 @@
 <script setup>
-import { essayAddKindService, essayEditKindService } from '@/api/essay'
 import { ref } from 'vue'
+import { useEssayStore } from '@/stores'
+const essayStore = useEssayStore()
 const dialogVisible = ref(false)
 const formRef = ref()
 const formModel = ref({
-  cate_name: '',
-  cate_alias: ''
+  kindName: '',
+  kindAlias: ''
 })
 const rules = {
-  cate_name: [
+  kindName: [
     { required: true, message: '请输入分类名称', trigger: 'blur' },
     {
       pattern: /^\S{1,10}$/,
@@ -16,7 +17,7 @@ const rules = {
       trigger: 'blur'
     }
   ],
-  cate_alias: [
+  kindAlias: [
     { required: true, message: '请输入分类别名', trigger: 'blur' },
     {
       pattern: /^[a-zA-Z0-9]{1,15}$/,
@@ -39,12 +40,12 @@ defineExpose({
 const emit = defineEmits(['success'])
 const onSubmit = async () => {
   await formRef.value.validate()
-  const isEdit = formModel.value.id
+  const isEdit = formModel.value.kindId
   if (isEdit) {
-    await essayEditKindService(formModel.value)
+    essayStore.editKind(formModel.value)
     ElMessage.success('编辑成功')
   } else {
-    await essayAddKindService(formModel.value)
+    essayStore.addKind(formModel.value)
     ElMessage.success('添加成功')
   }
   dialogVisible.value = false
@@ -65,17 +66,17 @@ const onSubmit = async () => {
       label-width="100px"
       style="padding-right: 30px"
     >
-      <el-form-item label="分类名称" prop="cate_name">
+      <el-form-item label="分类名称" prop="kindName">
         <el-input
           placeholder="请输入分类名称"
-          v-model="formModel.cate_name"
+          v-model="formModel.kindName"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="分类别名" prop="cate_alias">
+      <el-form-item label="分类别名" prop="kindAlias">
         <el-input
           placeholder="请输入分类别名"
-          v-model="formModel.cate_alias"
+          v-model="formModel.kindAlias"
         ></el-input>
       </el-form-item>
     </el-form>

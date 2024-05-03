@@ -3,11 +3,14 @@ import PageContainer from '@/components/PageContainer.vue'
 import ChannelSelect from '@/views/essay/components/ChannelSelect.vue'
 import { ref } from 'vue'
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { formatTime } from '@/utils/format'
 import { useRouter } from 'vue-router'
 import { useEssayStore } from '@/stores'
 const router = useRouter()
-// 定义请求参数对象
+// 定义筛选对象
+const params = ref({
+  kind: '',
+  state: ''
+})
 const essayStore = useEssayStore()
 const essayList = ref([])
 const loading = ref(false)
@@ -15,48 +18,86 @@ const loading = ref(false)
 const getEssayList = () => {
   loading.value = true
   essayList.value = essayStore.essay
-  console.log(essayList.value)
   loading.value = false
 }
 getEssayList()
 
+// 重置
+const onReset = () => {
+  params.value.state = ''
+  params.value.kind = ''
+  getEssayList()
+}
+// 搜索
+const onSearch = () => {
+  loading.value = true
+  const test = []
+  if (params.value.kind !== '' && params.value.state !== '') {
+    for (let i = 0; i < essayStore.essay.length; i++) {
+      if (
+        essayStore.essay[i].kind === params.value.kind &&
+        essayStore.essay[i].state === params.value.state
+      ) {
+        test.push(essayStore.essay[i])
+      }
+    }
+    essayList.value = test
+  }
+  if (params.value.kind === '' && params.value.state === '') {
+    ElMessage('请选择筛选的条件')
+  }
+  if (params.value.kind !== '' && params.value.state === '') {
+    for (let i = 0; i < essayStore.essay.length; i++) {
+      if (essayStore.essay[i].kind === params.value.kind) {
+        test.push(essayStore.essay[i])
+      }
+    }
+    essayList.value = test
+  }
+  if (params.value.kind === '' && params.value.state !== '') {
+    for (let i = 0; i < essayStore.essay.length; i++) {
+      if (essayStore.essay[i].state === params.value.state) {
+        test.push(essayStore.essay[i])
+      }
+    }
+    essayList.value = test
+  }
+  loading.value = false
+}
+// 新建论文
+const addEssay = () => {
+  router.push('/essay/edit')
+}
 // 编辑
 const onEditEssay = (row) => {
-  console.log(row)
+  const id = row.id
+  router.push({
+    path: '/essay/edit',
+    query: {
+      id
+    }
+  })
 }
 // 删除
 const onDeleteEssay = (row) => {
-  console.log(row)
-}
-// 重置
-// const onReset = () => {
-//   params.value.state = ''
-//   params.value.cate_id = ''
-//   getEssayList()
-// }
-// 搜索
-// const onSearch = () => {
-//   getEssayList()
-// }
-// 论文编辑
-const onEdit = () => {
-  router.push('/essay/edit')
+  essayStore.delEssay(row.id)
+  getEssayList()
 }
 </script>
 
 <template>
   <PageContainer title="论文管理">
     <template #extra>
-      <el-button @click="onEdit" type="primary">添加论文</el-button>
+      <el-button @click="addEssay" type="primary">添加论文</el-button>
     </template>
     <!-- 表单区域 -->
     <el-form inline>
       <el-form-item label="文章分类：">
         <!-- label 给用户看 value 提交到后台 -->
-        <ChannelSelect v-model="essayList.kind"></ChannelSelect>
+        <ChannelSelect v-model="params.kind"></ChannelSelect>
       </el-form-item>
       <el-form-item label="状态：">
-        <el-select style="width: 240px" v-model="essayList.state">
+        <el-select style="width: 240px" v-model="params.state">
           <el-option label="已发布" value="已发布"></el-option>
           <el-option label="草稿" value="草稿"></el-option>
         </el-select>
@@ -68,18 +109,9 @@ const onEdit = () => {
     </el-form>
     <!-- 表格区域 -->
     <el-table :data="essayList" v-loading="loading">
-      <el-table-column label="文章标题" prop="title">
-        <!-- 利用作用域插槽 可以获取当前行数据row -->
-        <template #default="{ row }">
-          <el-link type="primary" :underline="false">{{ row.title }}</el-link>
-        </template>
-      </el-table-column>
+      <el-table-column label="文章标题" prop="title"> </el-table-column>
       <el-table-column label="分类" prop="kind"></el-table-column>
-      <el-table-column label="发表时间" prop="date">
-        <template #default="{ row }">
-          {{ formatTime(row.pub_date) }}
-        </template>
-      </el-table-column>
+      <el-table-column label="发表时间" prop="date"> </el-table-column>
       <el-table-column label="状态" prop="state"></el-table-column>
       <el-table-column label="操作">
         <template #default="{ row }">

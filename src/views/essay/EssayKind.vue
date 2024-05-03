@@ -1,33 +1,36 @@
 <script setup>
 import PageContainer from '@/components/PageContainer.vue'
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { essayDelKindService, essayGetKindService } from '@/api/essay'
 import { ref } from 'vue'
 import ChannelEdit from '@/views/essay/components/ChannelEdit.vue'
-const loading = ref(false)
+import { useEssayStore } from '@/stores'
 const dialog = ref()
+const loading = ref(false)
+const essayStore = useEssayStore()
 const essayKind = ref([])
-const getEssayKind = async () => {
+
+const getEssayKind = () => {
   loading.value = true
-  const res = await essayGetKindService()
-  essayKind.value = res.data.data
+  essayKind.value = essayStore.kind
   loading.value = false
 }
 getEssayKind()
 
-const essayEdit = (row) => {
-  dialog.value.open(row)
-}
 const essayDelete = async (row) => {
   await ElMessageBox.confirm('确认要删除该分类吗', '温馨提示', {
     type: 'warning',
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   })
-  await essayDelKindService(row.id)
+  essayStore.delKind(row.kindId)
   ElMessage.success('删除成功')
   getEssayKind()
 }
+// 编辑分类
+const essayEdit = (row) => {
+  dialog.value.open(row)
+}
+// 新建分类
 const onAddChannel = () => {
   dialog.value.open({})
 }
@@ -44,8 +47,8 @@ const onSuccess = async () => {
     <!-- 表格 -->
     <el-table v-loading="loading" :data="essayKind" style="width: 100%">
       <el-table-column type="index" label="序号" width="100"></el-table-column>
-      <el-table-column prop="cate_name" label="分类名称"></el-table-column>
-      <el-table-column prop="cate_alias" label="分类别名"></el-table-column>
+      <el-table-column prop="kindName" label="分类名称"></el-table-column>
+      <el-table-column prop="kindAlias" label="分类别名"></el-table-column>
       <el-table-column prop="" label="操作" width="150">
         <!-- row     essayKind的每一项 -->
         <!-- $index  下标 -->
