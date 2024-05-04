@@ -73,7 +73,7 @@ const login = async () => {
   await form.value.validate()
   const res = await userLoginService(formModel.value)
   setToken(res.data.token)
-  router.push('/')
+  router.push('/layout')
 }
 // 切换的时候重置表单内容
 watch(isRegister, () => {

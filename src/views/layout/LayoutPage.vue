@@ -27,7 +27,7 @@ const handleCommand = async (key) => {
     // 清除token 清除用户信息 跳转到登录页
     userStore.removeToken()
     userStore.setUser({})
-    router.push('/login')
+    router.push('/')
   } else {
     router.push(`/user/${key}`)
   }
@@ -38,9 +38,6 @@ const handleCommand = async (key) => {
   <el-container class="layout-container">
     <el-aside width="200px">
       <div class="el-aside__logo"></div>
-      <!-- 
-        :default-active="$route.path" 默认高亮的菜单项
-      -->
       <el-menu
         active-text-color="#ffd04b"
         background-color="#232323"

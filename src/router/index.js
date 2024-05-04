@@ -6,12 +6,12 @@ const router = createRouter({
   routes: [
     {
       // 登录页
-      path: '/login',
+      path: '/',
       component: () => import('@/views/login/LoginPage.vue')
     },
     {
       // 首页
-      path: '/',
+      path: '/layout',
       redirect: '/essay/list',
       component: () => import('@/views/layout/LayoutPage.vue'),
       children: [
@@ -53,7 +53,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   // 如果没有token 且访问的是登录页 拦截到登录页
   const useStore = useUserStore()
-  if (!useStore.token && to.path !== '/login') return '/login'
+  if (!useStore.token && to.path !== '/') return '/'
 })
 
 export default router

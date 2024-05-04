@@ -16,7 +16,7 @@ const formModel = ref({
   title: '',
   date: '',
   kind: '',
-  state: '已发布',
+  state: '',
   college: '理学院',
   major: '信息与计算科学',
   class_name: '信20-1',
@@ -62,7 +62,7 @@ if (route.query.id) {
 }
 
 // 判断是否为封面页
-const isCover = ref(false)
+const isCover = ref(true)
 // 切内容页
 const form = ref()
 const changeContent = async () => {
@@ -112,13 +112,46 @@ const handleChange = (v) => {
   formModel.value.content = v
 }
 // 保存
-const save = () => {
+const save = async () => {
   if (route.query.id) {
-    essayStore.editEssay(formModel.value)
+    await ElMessageBox.confirm('要发布论文么', '温馨提示', {
+      distinguishCancelAndClose: true,
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+      type: 'warning'
+    })
+      .then(() => {
+        formModel.value.state = '已发布'
+        essayStore.editEssay(formModel.value)
+        router.push('/essay/list')
+      })
+      .catch((action) => {
+        if (action === 'cancel') {
+          formModel.value.state = '草稿'
+          essayStore.editEssay(formModel.value)
+          router.push('/essay/list')
+        }
+      })
   } else {
-    essayStore.setEssay(formModel.value)
+    await ElMessageBox.confirm('要发布论文么', '温馨提示', {
+      distinguishCancelAndClose: true,
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+      type: 'warning'
+    })
+      .then(() => {
+        formModel.value.state = '已发布'
+        essayStore.setEssay(formModel.value)
+        router.push('/essay/list')
+      })
+      .catch((action) => {
+        if (action === 'cancel') {
+          formModel.value.state = '草稿'
+          essayStore.setEssay(formModel.value)
+          router.push('/essay/list')
+        }
+      })
   }
-  router.push('/essay/list')
 }
 </script>
 
