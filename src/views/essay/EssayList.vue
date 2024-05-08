@@ -79,8 +79,14 @@ const onEditEssay = (row) => {
   })
 }
 // 删除
-const onDeleteEssay = (row) => {
+const onDeleteEssay = async (row) => {
+  await ElMessageBox.confirm('确认要删除该论文吗', '温馨提示', {
+    type: 'warning',
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
   essayStore.delEssay(row.id)
+  ElMessage.success('删除成功')
   getEssayList()
 }
 </script>
