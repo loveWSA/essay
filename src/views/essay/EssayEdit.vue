@@ -44,6 +44,7 @@ const rules = {
   ],
   teacher: [{ required: true, message: '请输入指导教师名字', trigger: 'blur' }]
 }
+// 数据初始化
 if (route.query.id) {
   const id = route.query.id
   formModel.value = essayStore.essay.filter((item) => item.id == id)[0]
@@ -60,7 +61,6 @@ if (route.query.id) {
   }
   createId()
 }
-
 // 判断是否为封面页
 const isCover = ref(true)
 // 切内容页
@@ -111,6 +111,32 @@ const changeCover = () => {
 const handleChange = (v) => {
   formModel.value.content = v
 }
+// 自动添加序号
+// watch(formModel.value.content, () => {
+//   console.log('变')
+//   addHeadingsNumber()
+// })
+
+// function addHeadingsNumber() {
+//   let lines = formModel.value.content.split('\n')
+//   let result = ''
+//   let levelCounts = [0, 0, 0, 0]
+
+//   lines.forEach((line) => {
+//     const match = line.match(/^(#+)\s(.+)/)
+//     if (match) {
+//       const level = match[1].length - 1
+//       levelCounts[level]++
+//       levelCounts[level + 1] = 0
+//       const number = levelCounts.slice(0, level + 1).join('.')
+//       result += `#${number} ${match[2]}\n`
+//     } else {
+//       result += line + '\n'
+//     }
+//   })
+
+//   formModel.value.content = result.trim()
+// }
 // 保存
 const save = async () => {
   if (route.query.id) {
@@ -253,7 +279,6 @@ const save = async () => {
     <!-- markdown编辑器 -->
     <div class="details">
       <Editor
-        class="editos"
         :value="formModel.content"
         :locale="zhHans"
         @change="handleChange"
